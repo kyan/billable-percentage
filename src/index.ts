@@ -1,11 +1,12 @@
 import { getUsers } from './userUtils';
-import { calculateBillability } from './billabilityUtils';
+import { getBillability } from './teamReport';
+import { User } from './types';
 
-getUsers().then(departmentsMap => {
-  const month = new Date().getMonth() + 1; // get current month
-  const year = new Date().getFullYear(); // get current year
-  calculateBillability(departmentsMap, month, year);
-  // calculateBillability(departmentsMap, 6, 2023);
+getUsers().then((departmentsMap: { [key: string]: User[] }) => {
+  const firstDayOfMonth = new Date(2023, 5, 1);
+  getBillability(departmentsMap, firstDayOfMonth).catch((error: string) => {
+    console.error(`Error: ${error}`);
+  });
 }).catch((error: string) => {
   console.error(`Error: ${error}`);
 });

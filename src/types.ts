@@ -23,17 +23,9 @@ export type User = {
   billableHours?: number; // Add this line
 };
 
-// export type Department = {
-//   id: number;
-//   name: string;
-//   users: User[];
-// };
-
-// export type Role = {
-//   id: number;
-//   name: string;
-//   users: User[];
-// };
+export type DepartmentMap = {
+  [department: string]: User[];
+};
 
 export type Holiday = {
   title: string;
@@ -42,9 +34,14 @@ export type Holiday = {
   bunting: boolean;
 };
 
-// export type Holidays = {
-//   [key: string]: {
-//     division: string;
-//     events: Holiday[];
-//   };
-// };
+export type TimeEntry = {
+  rounded_hours: number;
+  billable: boolean;
+};
+
+export type Report = {
+  user_id: number;
+  billable_hours: number;
+  total_hours: number;
+  weekly_capacity: number;
+}
