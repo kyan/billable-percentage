@@ -1,0 +1,9 @@
+---
+steps:
+  - name: 'gcr.io/kaniko-project/executor:v1.10.0'
+    id: 'Build image'
+    args:
+    - --destination=${_IMAGE_NAME}:latest
+    - --cache=true
+    - --cache-repo=${_IMAGE_NAME}/cache
+timeout: 900s
