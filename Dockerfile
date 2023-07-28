@@ -12,5 +12,8 @@ RUN npm install
 # Copy the rest of the application code to the working directory
 COPY . .
 
+# Compile TypeScript to JavaScript
+RUN npm run build
+
 # Define the command to run your script
-CMD [ "node", "src/index.ts" ]
+CMD [ "npm", "start" ]
