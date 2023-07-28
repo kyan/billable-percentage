@@ -2,6 +2,7 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import { DepartmentMap, User, Report } from './types';
 import { getWorkingDaysInMonth } from './dateUtils';
+import { saveDepartmentData } from './firestore';
 
 dotenv.config();
 
@@ -46,8 +47,15 @@ export const getBillability = async (departments: DepartmentMap, firstDayOfMonth
         totalBillableHours += userReport.billable_hours;
       }
     }
-
     const billability = Math.round((totalBillableHours / totalPossibleBillableHours) * 100);
-    console.log(`Department: ${department}, Billability: ${billability}%`);
+
+
+    const departmentData = {
+      billability: billability,
+      totalBillableHours: totalBillableHours,
+      totalPossibleBillableHours: totalPossibleBillableHours
+    };
+
+    await saveDepartmentData(department, departmentData);
   }
 };
