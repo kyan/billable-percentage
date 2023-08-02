@@ -45,3 +45,10 @@ export type Report = {
   total_hours: number;
   weekly_capacity: number;
 }
+
+export type DepartmentData = {
+  billability: number;
+  totalBillableHours: number;
+  totalPossibleBillableHours: number;
+  numberOfWorkingDays: number;
+}

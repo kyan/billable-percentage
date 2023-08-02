@@ -1,6 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { DepartmentMap, User, Report } from './types';
+import { DepartmentMap, Report } from './types';
 import { getWorkingDaysInMonth } from './dateUtils';
 import { saveDepartmentData } from './firestore';
 
@@ -9,18 +9,15 @@ dotenv.config();
 const HARVEST_ACCESS_TOKEN = process.env.HARVEST_ACCESS_TOKEN;
 const HARVEST_ACCOUNT_ID = process.env.HARVEST_ACCOUNT_ID;
 
-export const getBillability = async (departments: DepartmentMap, firstDayOfMonth: Date) => {
-  const year = firstDayOfMonth.getFullYear();
-  const month = firstDayOfMonth.getMonth() + 1; // JavaScript months are 0-indexed
+export const getBillability = async (departments: DepartmentMap, currentDate: Date = new Date()) => {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
 
   // Format the date strings
   const fromDate = `${year}-${month < 10 ? '0' + month : month}-01`;
+  const toDate = `${year}-${month < 10 ? '0' + month : month}-${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}`;
 
-  // Get the last day of the month
-  const lastDayOfMonth = new Date(year, month, 0);
-  const toDate = `${year}-${month < 10 ? '0' + month : month}-${lastDayOfMonth.getDate()}`;
-
-  const workingDaysInMonth = await getWorkingDaysInMonth(firstDayOfMonth);
+  const workingDaysInMonth = await getWorkingDaysInMonth(new Date(fromDate));
 
   const response = await axios.get(`https://api.harvestapp.com/v2/reports/time/team?from=${fromDate}&to=${toDate}`, {
     headers: {
@@ -49,13 +46,15 @@ export const getBillability = async (departments: DepartmentMap, firstDayOfMonth
     }
     const billability = Math.round((totalBillableHours / totalPossibleBillableHours) * 100);
 
+    // console.log(`billability for ${department}: ${billability}%`);
 
     const departmentData = {
       billability: billability,
       totalBillableHours: totalBillableHours,
-      totalPossibleBillableHours: totalPossibleBillableHours
+      totalPossibleBillableHours: totalPossibleBillableHours,
+      numberOfWorkingDays: workingDaysInMonth,
     };
 
-    await saveDepartmentData(department, departmentData);
+    await saveDepartmentData(department, currentDate, departmentData);
   }
 };
