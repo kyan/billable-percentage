@@ -47,8 +47,8 @@ export type Report = {
 }
 
 export type DepartmentData = {
+  department: string;
   billability: number;
   totalBillableHours: number;
   totalPossibleBillableHours: number;
-  numberOfWorkingDays: number;
 }

@@ -10,9 +10,14 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-export const saveDepartmentData = async (department: string, date: Date, data: DepartmentData) => {
-  const dateString = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`; // Format date as 'YYYY-MM-DD'
+export const saveDepartmentData = async (department: string, currentDate: Date, workingDaysInMonth: number, data: DepartmentData) => {
+  const dateString = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`; // Format date as 'YYYY-MM-DD'
 
-  const docRef = db.collection('billablePercentage').doc(dateString).collection('departments').doc(department);
-  await docRef.set(data);
+  const docRef = db.collection('billingPercentage').doc(dateString);
+  const departmentData = { [department]: data };
+  await docRef.set({
+    date: dateString,
+    workingDaysInMonth: workingDaysInMonth,
+    departments: departmentData
+  }, { merge: true });
 };
