@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { DepartmentMap, Report } from './types';
 import { getWorkingDaysInMonth } from './dateUtils';
 import { saveDepartmentData } from './firestore';
+import { getDepartmentHolidays } from './userHolidays';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ export const getBillability = async (departments: DepartmentMap, currentDate: Da
   const toDate = `${year}-${month < 10 ? '0' + month : month}-${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}`;
 
   const workingDaysInMonth = await getWorkingDaysInMonth(new Date(fromDate));
+  const departmentHolidays = await getDepartmentHolidays(currentDate);
 
   const response = await axios.get(`https://api.harvestapp.com/v2/reports/time/team?from=${fromDate}&to=${toDate}`, {
     headers: {
@@ -44,9 +46,8 @@ export const getBillability = async (departments: DepartmentMap, currentDate: Da
         totalBillableHours += userReport.billable_hours;
       }
     }
+    totalPossibleBillableHours -= departmentHolidays[department] * 8;
     const billability = Math.round((totalBillableHours / totalPossibleBillableHours) * 100);
-
-    // console.log(`billability for ${department}: ${billability}%`);
 
     const departmentData = {
       department: department,
@@ -54,6 +55,8 @@ export const getBillability = async (departments: DepartmentMap, currentDate: Da
       totalBillableHours: totalBillableHours,
       totalPossibleBillableHours: totalPossibleBillableHours
     };
+
+    // console.log(`${departmentData['department']}: ${departmentData['billability']}%`);
 
     await saveDepartmentData(department, currentDate, workingDaysInMonth, departmentData);
   }

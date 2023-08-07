@@ -52,3 +52,14 @@ export type DepartmentData = {
   totalBillableHours: number;
   totalPossibleBillableHours: number;
 }
+
+export interface WorkingDay {
+  dayOfWeek: string;
+  workingAm: boolean;
+  workingPm: boolean;
+}
+
+export type DepartmentHolidays = {
+  [department: string]: number;
+};
+
