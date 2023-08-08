@@ -53,13 +53,20 @@ export type DepartmentData = {
   totalPossibleBillableHours: number;
 }
 
+export type DepartmentHolidays = {
+  [department: string]: number;
+};
+
 export interface WorkingDay {
   dayOfWeek: string;
   workingAm: boolean;
   workingPm: boolean;
 }
 
-export type DepartmentHolidays = {
-  [department: string]: number;
-};
-
+export interface TTHoliday {
+  startDate: string;
+  endDate: string;
+  leaveType: string;
+  duration: number;
+  userId: number;
+}

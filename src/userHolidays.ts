@@ -1,6 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { WorkingDay, DepartmentHolidays } from './types';
+import { WorkingDay, DepartmentHolidays, TTHoliday } from './types';
 
 dotenv.config();
 
@@ -23,7 +23,6 @@ export const getDepartmentHolidays = async (currentDate: Date) => {
   const { start, end } = calculateStartAndEndDates(currentDate);
   const currentMonth = currentDate.getMonth();
 
-
   for (const [department, value] of Object.entries(departmentMappings)) {
     let departmentHolidayDays = 0;
 
@@ -38,42 +37,27 @@ export const getDepartmentHolidays = async (currentDate: Date) => {
     const holidays = response.data.holidays;
 
     for (const holiday of holidays) {
-      // Skip holidays with leaveType "Working in Office" or "Maternity"
-      if (holiday.leaveType === "Working in Office" || holiday.leaveType === "Maternity") continue;
-
-      await delay(200)
-
-      const workingDays = await getWorkingDaysForUser(holiday.userId);
-
+      // Extracting start and end dates
       const startDate = new Date(holiday.startDate);
       const endDate = new Date(holiday.endDate);
+      await delay(200);
+      const workingDays = await getWorkingDaysForUser(holiday.userId);
 
-      // If the start date is before the current month, set it to the first day of the current month
-      if (startDate.getMonth() < currentMonth) {
-        startDate.setDate(1);
-        startDate.setMonth(currentMonth);
-      }
+      // Checking if the leave is in current month and not of the types "Working in Office" or "Maternity"
+      if ((startDate.getMonth() === currentMonth || endDate.getMonth() === currentMonth) && holiday.leaveType !== "Working in Office" && holiday.leaveType !== "Maternity") {
+        // Extracting the duration
+        let duration = holiday.duration;
 
-      // If the end date is after the current month, set it to the last day of the current month
-      if (endDate.getMonth() > currentMonth) {
-        endDate.setMonth(currentMonth + 1, 0);
-      }
-
-      // Calculate the duration excluding weekends and only considering the current month
-      let duration = 0;
-      for (const d = new Date(startDate); d <= endDate && d.getMonth() === currentMonth; d.setDate(d.getDate() + 1)) {
-          // Include only working days and skip weekends
-          if (workingDays.includes(d.getDay()) && d.getDay() !== 0 && d.getDay() !== 6) {
-            duration += 1;
+        // Iterating through the date range and adjusting the duration for work days and dates outside July
+        const currentDate = startDate;
+        while (currentDate <= endDate) {
+          if (currentDate.getMonth() !== currentMonth || !workingDays.includes(currentDate.getDay())) {
+            duration -= 1;
           }
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+        departmentHolidayDays += duration;
       }
-
-      // If the holiday is a part day (morning or afternoon), adjust the duration
-      if (holiday.duration && holiday.duration < 1) {
-        duration *= holiday.duration; // Assumes duration is a fractional value representing the part of the day
-      }
-
-      departmentHolidayDays += duration;
     }
 
     departmentHolidays[department] = departmentHolidayDays;

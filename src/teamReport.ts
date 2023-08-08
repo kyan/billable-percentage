@@ -56,7 +56,7 @@ export const getBillability = async (departments: DepartmentMap, currentDate: Da
       totalPossibleBillableHours: totalPossibleBillableHours
     };
 
-    // console.log(`${departmentData['department']}: ${departmentData['billability']}%`);
+    console.log(`${departmentData['department']}: ${departmentData['billability']}%`);
 
     await saveDepartmentData(department, currentDate, workingDaysInMonth, departmentData);
   }
