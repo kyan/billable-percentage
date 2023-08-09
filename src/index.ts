@@ -16,6 +16,9 @@ getUsers().then((departmentsMap: { [key: string]: User[] }) => {
   getBillability(departmentsMap, date).catch((error: string) => {
     console.error(`Error: ${error}`);
   });
+  getBillability(departmentsMap, date, false).catch((error: string) => {
+    console.error(`Error: ${error}`);
+  });
 }).catch((error: string) => {
   console.error(`Error: ${error}`);
 });

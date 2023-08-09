@@ -10,7 +10,11 @@ dotenv.config();
 const HARVEST_ACCESS_TOKEN = process.env.HARVEST_ACCESS_TOKEN;
 const HARVEST_ACCOUNT_ID = process.env.HARVEST_ACCOUNT_ID;
 
-export const getBillability = async (departments: DepartmentMap, currentDate: Date = new Date()) => {
+export const getBillability = async (
+  departments: DepartmentMap,
+  currentDate: Date = new Date(),
+  includeHolidays: boolean = true
+) => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
 
@@ -46,7 +50,11 @@ export const getBillability = async (departments: DepartmentMap, currentDate: Da
         totalBillableHours += userReport.billable_hours;
       }
     }
-    totalPossibleBillableHours -= departmentHolidays[department] * 8;
+
+    if (includeHolidays) {
+      totalPossibleBillableHours -= departmentHolidays[department] * 8;
+    }
+
     const billability = Math.round((totalBillableHours / totalPossibleBillableHours) * 100);
 
     const departmentData = {
@@ -58,6 +66,10 @@ export const getBillability = async (departments: DepartmentMap, currentDate: Da
 
     console.log(`${departmentData['department']}: ${departmentData['billability']}%`);
 
-    await saveDepartmentData(department, currentDate, workingDaysInMonth, departmentData);
+    if (includeHolidays) {
+      await saveDepartmentData('billablePercentage', department, currentDate, workingDaysInMonth, departmentData);
+    } else {
+      await saveDepartmentData('billablePercentageExcludingHolidays', department, currentDate, workingDaysInMonth, departmentData);
+    }
   }
 };

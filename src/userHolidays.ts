@@ -40,7 +40,7 @@ export const getDepartmentHolidays = async (currentDate: Date) => {
       // Extracting start and end dates
       const startDate = new Date(holiday.startDate);
       const endDate = new Date(holiday.endDate);
-      await delay(200);
+      await delay(400);
       const workingDays = await getWorkingDaysForUser(holiday.userId);
 
       // Checking if the leave is in current month and not of the types "Working in Office" or "Maternity"
@@ -61,7 +61,7 @@ export const getDepartmentHolidays = async (currentDate: Date) => {
     }
 
     departmentHolidays[department] = departmentHolidayDays;
-    await delay(200);
+    await delay(400);
   }
   // console.log(departmentHolidays);
   return departmentHolidays;
