@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    command: npm run build && node dist/index.js "2024-02-29"
+    volumes:
+      - ${PWD}:/app
+    stdin_open: true
+    tty: true
