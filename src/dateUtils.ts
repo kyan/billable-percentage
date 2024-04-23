@@ -8,21 +8,21 @@ export const getBankHolidays = async () => {
   return bankHolidays.map((holiday: Holiday) => holiday.date);
 };
 
-export const getWorkingDaysInMonth = async (date: Date) => {
-  const startDate = moment(date).startOf('month');
-  const endDate = moment(date).endOf('month');
-
-  let currentDay = moment(startDate);
-  let workingDays = 0;
-
+export const workingDatesInMonth = async (startDate: string, endDate: string) => {
   const bankHolidays = await getBankHolidays();
 
+  let currentDay = moment(startDate);
+  let workingDates = [];
+
   while (currentDay.isBefore(endDate) || currentDay.isSame(endDate)) {
-    if (currentDay.isoWeekday() < 6 && !bankHolidays.includes(currentDay.format('YYYY-MM-DD'))) { // isoWeekday() returns 6 for Saturday and 7 for Sunday
-      workingDays++;
+    if (
+      currentDay.isoWeekday() < 6 &&
+      !bankHolidays.includes(currentDay.format('YYYY-MM-DD'))
+    ) {
+      workingDates.push({ date: currentDay.format('YYYY-MM-DD'), day: currentDay.format("dddd").toLowerCase() })
     }
     currentDay = currentDay.add(1, 'days');
   }
 
-  return workingDays;
+  return workingDates;
 };
